@@ -25,6 +25,10 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
     var recordButton = UIButton()
     var resumeButton = UIButton()
     var cameraUnavailableLabel: UILabel?
+    private var backMaskView = UIView()
+    private var frontMaskView = UIView()
+    
+    private var firstTime = true
     
     var viewModel: MainViewModel
     
@@ -123,35 +127,6 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         super.viewWillDisappear(animated)
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        let topPadding = view.safeAreaInsets.top
-        let bottomPadding = view.safeAreaInsets.bottom
-        let screenHeight = view.frame.height - topPadding - bottomPadding
-        
-        backCameraPreviewView.backgroundColor = .red
-        frontCameraPreviewView.backgroundColor = .blue
-        
-        viewModel.backCameraVideoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        let backMaskView = UIView(frame: CGRect(x: 0,
-                                                y: 0,
-                                                width: backCameraPreviewView.frame.width,
-                                                height: backCameraPreviewView.frame.height))
-        backMaskView.layer.cornerRadius = screenHeight / 4
-        backMaskView.backgroundColor = .brown
-        backCameraPreviewView.mask = backMaskView
-        
-        viewModel.frontCameraVideoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        let frontMaskView = UIView(frame: CGRect(x: 0,
-                                                y: 0,
-                                                width: frontCameraPreviewView.frame.width,
-                                                height: frontCameraPreviewView.frame.height))
-        frontMaskView.layer.cornerRadius = screenHeight / 4
-        frontMaskView.backgroundColor = .brown
-        frontCameraPreviewView.mask = frontMaskView
-    }
-    
     @objc private func didEnterBackground(notification: NSNotification) {
         // Free up resources.
         viewModel.dataOutputQueue.async {
@@ -161,8 +136,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         }
     }
     
-    @objc // Expose to Objective-C for use with #selector()
-    func willEnterForground(notification: NSNotification) {
+    @objc func willEnterForground(notification: NSNotification) {
         viewModel.dataOutputQueue.async {
             self.viewModel.renderingEnabled = true
         }
@@ -303,18 +277,20 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
     
     @objc func toPan(_ panGseture: UIPanGestureRecognizer) {
         let point = panGseture.location(in: self.view)
+        
+        let offset = -(UIScreen.main.bounds.height / 2 - point.y)
         backCameraPreviewView.snp.updateConstraints() {
-            $0.height.equalTo(frontCameraPreviewView.snp.height).offset(UIScreen.main.bounds.height / 2 - point.y)
+            $0.height.equalTo(frontCameraPreviewView.snp.height).offset(offset)
         }
-        UIView.animate(withDuration: 0.01, animations: {
-            self.view.layoutIfNeeded()
-        })
+        
+        setMasks()
     }
     
     private func addViews() {
         view.addSubview(containerView)
         containerView.snp.makeConstraints() {
-            $0.edges.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
+            $0.top.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         
         containerView.addSubviews([
@@ -324,12 +300,55 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         
         backCameraPreviewView.snp.makeConstraints() {
             $0.leading.trailing.top.equalToSuperview()
-            $0.bottom.equalTo(frontCameraPreviewView.snp.top)
             $0.height.equalTo(frontCameraPreviewView.snp.height)
+            $0.bottom.equalTo(frontCameraPreviewView.snp.top)
         }
+        
         
         frontCameraPreviewView.snp.makeConstraints() {
             $0.leading.trailing.bottom.equalToSuperview()
+            $0.top.equalTo(frontCameraPreviewView.snp.bottom)
         }
+        
+        view.layoutIfNeeded()
+        setMasks()
+    }
+    
+    private func setMasks() {
+        // TODO: - test
+        backCameraPreviewView.backgroundColor = .red
+        frontCameraPreviewView.backgroundColor = .blue
+        //let screenHeight = view.frame.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom
+        
+        var backMaskHeight = backCameraPreviewView.frame.height
+        var frontMaskHeight = frontCameraPreviewView.frame.height
+        
+        if firstTime {
+            backMaskHeight -= 40
+            frontMaskHeight -= 40
+            firstTime = false
+        }
+        
+        // back
+        viewModel.backCameraVideoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        backMaskView = UIView(frame: CGRect(x: 0,
+                                            y: 0,
+                                            width: backCameraPreviewView.frame.width,
+                                            height: backMaskHeight))
+        backMaskView.layer.cornerRadius = backCameraPreviewView.frame.height < backCameraPreviewView.frame.width ?
+            backCameraPreviewView.frame.height / 2 : backCameraPreviewView.frame.width / 2
+        backMaskView.backgroundColor = .brown
+        backCameraPreviewView.mask = backMaskView
+        
+        // front
+        viewModel.frontCameraVideoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        frontMaskView = UIView(frame: CGRect(x: 0,
+                                             y: 0,
+                                             width: frontCameraPreviewView.frame.width,
+                                             height: frontMaskHeight))
+        frontMaskView.layer.cornerRadius = frontCameraPreviewView.frame.height < frontCameraPreviewView.frame.width ?
+            frontCameraPreviewView.frame.height / 2 : frontCameraPreviewView.frame.width / 2
+        frontMaskView.backgroundColor = .brown
+        frontCameraPreviewView.mask = frontMaskView
     }
 }

@@ -28,6 +28,13 @@
 	<string>$(PRODUCT_NAME) saves recorded movies to your photo library</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SFProText-Bold.ttf</string>
+		<string>SFProText-SemiBold.ttf</string>
+		<string>SFProText-Regular.ttf</string>
+		<string>SFProText-Medium.ttf</string>
+	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

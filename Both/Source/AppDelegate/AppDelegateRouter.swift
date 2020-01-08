@@ -17,7 +17,13 @@ final class AppDelegateRouter {
     }
     
     func showMain() {
-        let vc = MainViewController(viewModel: MainViewModel(router: MainRouter()))
-        self.window.rootViewController = vc
+        let launchStoryboard = UIStoryboard(name: "LaunchScreen", bundle: nil)
+        let launchController = launchStoryboard.instantiateViewController(withIdentifier: "LaunchViewController")
+        self.window.rootViewController = launchController
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+            let vc = MainViewController(viewModel: MainViewModel(router: MainRouter()))
+            self.window.rootViewController = vc
+        }
     }
 }

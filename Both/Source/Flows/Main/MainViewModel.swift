@@ -62,7 +62,7 @@ final class MainViewModel: NSObject, ViewModel {
         sessionQueue.async {
             self.configureSession()
         }
-//
+
         UIApplication.shared.isIdleTimerDisabled = true
         
         view.containerView
