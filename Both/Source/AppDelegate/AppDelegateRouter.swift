@@ -17,7 +17,7 @@ final class AppDelegateRouter {
     }
     
     func showMain() {
-        let vc = MainViewController()
+        let vc = MainViewController(viewModel: MainViewModel(router: MainRouter()))
         self.window.rootViewController = vc
     }
 }
