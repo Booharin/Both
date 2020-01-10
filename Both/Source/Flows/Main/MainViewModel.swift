@@ -7,6 +7,7 @@
 //
 import RxSwift
 import RxGesture
+import RxCocoa
 import UIKit
 import AVFoundation
 import Photos
@@ -45,7 +46,7 @@ final class MainViewModel: NSObject, ViewModel {
     var currentPiPSampleBuffer: CMSampleBuffer?
     private var backgroundRecordingID: UIBackgroundTaskIdentifier?
     private var videoTrackSourceFormatDescription: CMFormatDescription?
-    
+    var recordind = false
     init(router: MainRouter) {
         self.router = router
     }
@@ -72,6 +73,13 @@ final class MainViewModel: NSObject, ViewModel {
             .subscribe(onNext: { [weak self] gesture in
                 gesture.numberOfTouchesRequired = 2
                 self?.togglePiP()
+        }).disposed(by: disposeBag)
+        
+        view.recordButton
+            .rx
+            .tapGesture()
+            .subscribe(onNext: { [weak self] _ in
+                self?.toggleMovieRecording()
         }).disposed(by: disposeBag)
     }
     
@@ -607,23 +615,18 @@ final class MainViewModel: NSObject, ViewModel {
     }
     
     private func updateRecordButtonWithRecordingState(_ isRecording: Bool) {
-//        let color = isRecording ? UIColor.red : UIColor.yellow
-//        let title = isRecording ? "Stop" : "Record"
-//
-//        recordButton.tintColor = color
-//        recordButton.setTitleColor(color, for: .normal)
-//        recordButton.setTitle(title, for: .normal)
+        view.recordButton.updateButton(isRecording)
     }
     
     // MARK: - Movie recording
     
-    private func toggleMovieRecording(_ recordButton: UIButton) {
-        view.recordButton.isEnabled = false
+    private func toggleMovieRecording() {
+        view.recordButton.isUserInteractionEnabled = false
         
         dataOutputQueue.async {
             defer {
                 DispatchQueue.main.async {
-                    recordButton.isEnabled = true
+                    self.view.recordButton.isUserInteractionEnabled = true
                     
                     if let recorder = self.movieRecorder {
                         self.updateRecordButtonWithRecordingState(recorder.isRecording)

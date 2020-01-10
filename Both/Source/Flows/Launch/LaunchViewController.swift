@@ -55,8 +55,8 @@ class LaunchViewController: UIViewController {
         let imageView = UIImageView(image: #imageLiteral(resourceName: "record_ring_icn"))
         self.view.addSubview(imageView)
         imageView.snp.makeConstraints() {
-            $0.width.height.equalTo(74)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-14)
+            $0.width.height.equalTo(70)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
             $0.centerX.equalToSuperview()
         }
     }

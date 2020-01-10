@@ -10,4 +10,5 @@ import UIKit
 struct Colors {
     static let launchLabelBackground = #colorLiteral(red: 0.1529411765, green: 0.1529411765, blue: 0.1529411765, alpha: 0.5)
     static let launchLabelAddingFont = #colorLiteral(red: 0.4470088482, green: 0.4470884204, blue: 0.4469977021, alpha: 1)
+    static let recordButton = #colorLiteral(red: 1, green: 0.09803921569, blue: 0, alpha: 1)
 }

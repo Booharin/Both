@@ -12,7 +12,7 @@ import AVFoundation
 
 protocol MainViewControllerProtocol {
     var containerView: UIView { get }
-    var recordButton: UIButton { get }
+    var recordButton: RecordButton { get }
     var backCameraPreviewView: PreviewView { get }
     var frontCameraPreviewView: PreviewView { get }
 }
@@ -22,7 +22,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
     var containerView = UIView()
     var backCameraPreviewView = PreviewView()
     var frontCameraPreviewView = PreviewView()
-    var recordButton = UIButton()
+    var recordButton = RecordButton()
     var resumeButton = UIButton()
     var cameraUnavailableLabel: UILabel?
     private var backMaskView = UIView()
@@ -44,7 +44,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        recordButton.isEnabled = false
+        recordButton.isUserInteractionEnabled = false
         addViews()
         viewModel.assosiateView(self)
         
@@ -153,7 +153,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
             guard let isSessionRunning = change.newValue else { return }
             
             DispatchQueue.main.async {
-                self.recordButton.isEnabled = isSessionRunning
+                self.recordButton.isUserInteractionEnabled = isSessionRunning
             }
         }
         keyValueObservations.append(keyValueObservation)
@@ -295,7 +295,8 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         
         containerView.addSubviews([
             backCameraPreviewView,
-            frontCameraPreviewView
+            frontCameraPreviewView,
+            recordButton
         ])
         
         backCameraPreviewView.snp.makeConstraints() {
@@ -306,8 +307,14 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         
         
         frontCameraPreviewView.snp.makeConstraints() {
-            $0.leading.trailing.bottom.equalToSuperview()
-            $0.top.equalTo(frontCameraPreviewView.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(recordButton.snp.top).offset(-8)
+        }
+        
+        recordButton.snp.makeConstraints() {
+            $0.width.height.equalTo(70)
+            $0.bottom.equalToSuperview()
+            $0.centerX.equalToSuperview()
         }
         
         view.layoutIfNeeded()
@@ -336,7 +343,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
                                             width: backCameraPreviewView.frame.width,
                                             height: backMaskHeight))
         backMaskView.layer.cornerRadius = backCameraPreviewView.frame.height < backCameraPreviewView.frame.width ?
-            backCameraPreviewView.frame.height / 2 : backCameraPreviewView.frame.width / 2
+            backMaskHeight / 2 : backCameraPreviewView.frame.width / 2
         backMaskView.backgroundColor = .brown
         backCameraPreviewView.mask = backMaskView
         
@@ -347,7 +354,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
                                              width: frontCameraPreviewView.frame.width,
                                              height: frontMaskHeight))
         frontMaskView.layer.cornerRadius = frontCameraPreviewView.frame.height < frontCameraPreviewView.frame.width ?
-            frontCameraPreviewView.frame.height / 2 : frontCameraPreviewView.frame.width / 2
+           frontMaskHeight / 2 : frontCameraPreviewView.frame.width / 2
         frontMaskView.backgroundColor = .brown
         frontCameraPreviewView.mask = frontMaskView
     }
