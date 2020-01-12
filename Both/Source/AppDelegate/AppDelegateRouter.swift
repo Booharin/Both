@@ -22,7 +22,7 @@ final class AppDelegateRouter {
         self.window.rootViewController = launchController
         
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-            let vc = MainViewController(viewModel: MainViewModel(router: MainRouter()))
+            let vc = MainViewController(viewModel: MainViewModel(router: MainRouter(window: self.window)))
             self.window.rootViewController = vc
         }
     }

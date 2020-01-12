@@ -83,6 +83,10 @@ final class MainViewModel: NSObject, ViewModel {
         }).disposed(by: disposeBag)
     }
     
+    func getCurrentWindow() -> UIWindow {
+        return router.window
+    }
+    
     private func togglePiP() {
         // Disable animations so the views move immediately
         CATransaction.begin()

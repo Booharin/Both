@@ -28,6 +28,9 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
     private var backMaskView = UIView()
     private var frontMaskView = UIView()
     
+    private var microphoneImageView = UIImageView(image: #imageLiteral(resourceName: "mic_icn"))
+    var volumeView = VolumeView()
+    
     private var firstTime = true
     
     var viewModel: MainViewModel
@@ -296,7 +299,9 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         containerView.addSubviews([
             backCameraPreviewView,
             frontCameraPreviewView,
-            recordButton
+            recordButton,
+            microphoneImageView,
+            volumeView
         ])
         
         backCameraPreviewView.snp.makeConstraints() {
@@ -316,6 +321,22 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
             $0.bottom.equalToSuperview()
             $0.centerX.equalToSuperview()
         }
+        
+        microphoneImageView.snp.makeConstraints() {
+            $0.width.equalTo(15)
+            $0.height.equalTo(25)
+            $0.trailing.equalTo(-66)
+            $0.top.equalTo(20)
+        }
+        
+        volumeView.snp.makeConstraints() {
+            $0.trailing.equalTo(-22)
+            $0.height.equalTo(25)
+            $0.leading.equalTo(microphoneImageView.snp.trailing).offset(17)
+            $0.centerY.equalTo(microphoneImageView.snp.centerY)
+        }
+        volumeView.backProgressView.setProgress(1, animated: false)
+        volumeView.frontProgressView.setProgress(0.75, animated: false)
         
         view.layoutIfNeeded()
         setMasks()
